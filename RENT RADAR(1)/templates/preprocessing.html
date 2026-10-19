@@ -1,0 +1,14 @@
+{% extends "base.html" %}{% block content %}
+<div class="page-header"><h2>Data Preparation</h2><p>Clean duplicate rows, handle missing values and prepare meaningful property features for machine learning.</p></div>
+{% if error %}<div class="error-box">{{ error }}</div>{% endif %}
+{% if results %}
+<div class="metric-grid">
+<div class="card"><div class="card-label">DUPLICATES REMOVED</div><div class="card-value">{{ results.duplicates_removed }}</div></div>
+<div class="card"><div class="card-label">MODEL FEATURES</div><div class="card-value">{{ results.features|length }}</div></div>
+<div class="card"><div class="card-label">ENCODED FEATURES</div><div class="card-value">{{ results.feature_count }}</div></div>
+</div>
+<div class="chart-card"><h3>Rental Features Used</h3><p class="chart-description">Structured property and location attributes are used while identifiers and long free-text fields are excluded.</p>{% for f in results.features %}<span class="badge">{{ f }}</span>{% endfor %}</div>
+<h3 class="section-title">Prepared Data Preview</h3>
+<div class="table-container"><table class="data-table"><thead><tr>{% for c in results.cleaned_data.columns[:15] %}<th>{{ c }}</th>{% endfor %}</tr></thead><tbody>{% for row in cleaned %}<tr>{% for c in results.cleaned_data.columns[:15] %}<td>{{ row[c] }}</td>{% endfor %}</tr>{% endfor %}</tbody></table></div>
+{% endif %}
+{% endblock %}

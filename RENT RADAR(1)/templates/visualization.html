@@ -1,0 +1,5 @@
+{% extends "base.html" %}{% block content %}
+<div class="page-header"><h2>Market Visuals</h2><p>Charts and graphs that make rental-market patterns easy to understand.</p></div>
+{% if error %}<div class="error-box">{{ error }}</div>{% endif %}
+<div class="chart-grid">{% for chart in charts %}<div class="chart-card"><h3>{{ chart.replace('_',' ').replace('.png','').title() }}</h3><div class="chart-container"><img src="{{ url_for('static', filename='charts/' + chart) }}" alt="{{ chart }}"></div></div>{% endfor %}</div>
+{% endblock %}

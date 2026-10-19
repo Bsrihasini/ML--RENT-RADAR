@@ -1,0 +1,17 @@
+{% extends "base.html" %}{% block content %}
+<div class="page-header"><h2>Rent Insights</h2><p>Understand rent distributions, property relationships, city-level patterns and data quality.</p></div>
+{% if error %}<div class="error-box">{{ error }}</div>{% endif %}
+{% if results %}
+<div class="cards">
+<div class="card"><div class="card-label">AVERAGE RENT</div><div class="card-value">${{ "{:,.0f}".format(results.average_rent) }}</div></div>
+<div class="card"><div class="card-label">MEDIAN RENT</div><div class="card-value">${{ "{:,.0f}".format(results.median_rent) }}</div></div>
+<div class="card"><div class="card-label">LOWEST LISTED</div><div class="card-value">${{ "{:,.0f}".format(results.min_rent) }}</div></div>
+<div class="card"><div class="card-label">HIGHEST LISTED</div><div class="card-value">${{ "{:,.0f}".format(results.max_rent) }}</div></div>
+</div>
+<div class="chart-grid" id="trends">
+{% for chart in results.charts %}
+<div class="chart-card"><h3>{{ chart.replace('_',' ').replace('.png','').title() }}</h3><div class="chart-container"><img src="{{ url_for('static', filename='charts/' + chart) }}" alt="{{ chart }}"></div></div>
+{% endfor %}
+</div>
+{% endif %}
+{% endblock %}

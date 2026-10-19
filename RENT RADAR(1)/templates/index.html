@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="page-header">
+    <h2>Dashboard Overview</h2>
+    <p>Get a quick overview of the rental market from your 100K apartment listings.</p>
+</div>
+
+{% if error %}
+<div class="error-box">{{ error }}</div>
+{% endif %}
+
+{% if stats %}
+<section class="hero-metrics">
+    <div class="hero-metric">
+        <div>
+            <div class="metric-label">AVERAGE RENT (USD)</div>
+            <div class="metric-value">${{ "{:,.0f}".format(stats.average_rent) }}</div>
+            <div class="metric-note">Based on {{ "{:,}".format(stats.total_listings) }} listings</div>
+        </div>
+        <div class="metric-symbol">↗</div>
+    </div>
+
+    <div class="hero-metric">
+        <div>
+            <div class="metric-label">TOTAL LISTED MONTHLY RENT</div>
+            <div class="metric-value">${{ "{:,.2f}".format(stats.total_listed_rent / 1000000) }}M</div>
+            <div class="metric-note">Sum of listed monthly prices</div>
+        </div>
+        <div class="money-icon">💸</div>
+    </div>
+</section>
+
+<section class="dashboard-panel">
+    <div class="panel-heading">
+        <h3>Rent Distribution</h3>
+        <span>Actual dataset breakdown</span>
+    </div>
+    <div class="distribution-layout">
+        <div class="donut-wrap">
+            <img src="{{ url_for('static', filename='charts/rent_distribution.png') }}" alt="Rent distribution">
+        </div>
+        <div class="distribution-list">
+            <div class="distribution-row">
+                <div><span class="dot low"></span><b>Low Rent</b><small>&lt; $500</small></div>
+                <strong>{{ stats.low_pct }}%<small>({{ "{:,}".format(stats.low_count) }})</small></strong>
+            </div>
+            <div class="distribution-row">
+                <div><span class="dot mid"></span><b>Mid Rent</b><small>$500 - $1500</small></div>
+                <strong>{{ stats.mid_pct }}%<small>({{ "{:,}".format(stats.mid_count) }})</small></strong>
+            </div>
+            <div class="distribution-row">
+                <div><span class="dot high"></span><b>High Rent</b><small>&gt; $1500</small></div>
+                <strong>{{ stats.high_pct }}%<small>({{ "{:,}".format(stats.high_count) }})</small></strong>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="dashboard-panel">
+    <div class="panel-heading">
+        <h3>Market Snapshot</h3>
+        <span>Live from the active dataset</span>
+    </div>
+    <div class="snapshot-grid">
+        <div class="snapshot-card"><span class="snapshot-icon">🏠</span><div><small>Total Listings</small><b>{{ "{:,}".format(stats.total_listings) }}</b><em>Active Properties</em></div></div>
+        <div class="snapshot-card"><span class="snapshot-icon">📏</span><div><small>Avg. Area (sq.ft)</small><b>{{ "{:,.0f}".format(stats.average_sqft) }}</b><em>Average Size</em></div></div>
+        <div class="snapshot-card"><span class="snapshot-icon">💵</span><div><small>Avg. Rent (USD)</small><b>${{ "{:,.0f}".format(stats.average_rent) }}</b><em>Average Monthly Rent</em></div></div>
+        <div class="snapshot-card"><span class="snapshot-icon">📍</span><div><small>Locations Covered</small><b>{{ "{:,}".format(stats.locations) }}</b><em>Cities / Areas</em></div></div>
+        <div class="snapshot-card"><span class="snapshot-icon">🧹</span><div><small>Data Quality</small><b>{{ "{:,}".format(stats.missing_values) }}</b><em>Missing Values</em></div></div>
+        <div class="snapshot-card"><span class="snapshot-icon">♻️</span><div><small>Duplicates</small><b>{{ "{:,}".format(stats.duplicates) }}</b><em>Rows to review</em></div></div>
+    </div>
+</section>
+{% endif %}
+{% endblock %}

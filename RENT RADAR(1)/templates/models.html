@@ -1,0 +1,179 @@
+{% extends "base.html" %}
+{% block content %}
+<style>
+.models-shell{display:flex;flex-direction:column;gap:18px}
+.learning-toggle{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.learning-btn{border:1px solid #26302a;background:#0b0f0d;color:#cbd5cf;border-radius:12px;padding:15px 18px;text-align:left;font-weight:800;font-size:16px;cursor:pointer;text-decoration:none}
+.learning-btn.active{background:#12341f;border-color:#2f9b52;color:#70e993;box-shadow:0 0 18px rgba(82,223,127,.08)}
+.models-layout{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(390px,.85fr);gap:18px;align-items:start}
+.model-browser{display:flex;flex-direction:column;gap:13px}
+.model-group{background:#0d110f;border:1px solid #26302a;border-radius:14px;padding:14px}
+.model-group h3{margin:0 0 11px;color:#70d993;font-size:16px}
+.model-buttons{display:flex;flex-wrap:wrap;gap:9px}
+.model-btn{display:inline-flex;align-items:center;justify-content:space-between;gap:12px;padding:11px 14px;border:1px solid #26302a;border-radius:9px;background:#0b0f0d;color:#dbe3de;text-decoration:none;font-size:13px;font-weight:700;min-width:150px}
+.model-btn:hover,.model-btn.selected{border-color:#2f9b52;background:#10341e;color:#70e993}
+.details-panel{background:#0d110f;border:1px solid #26302a;border-radius:16px;padding:20px;position:sticky;top:165px}
+.details-title{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:12px}.details-title h2{margin:0;color:#f0f4f1;font-size:24px}.type-pill{border:1px solid #2f9b52;color:#70e993;background:#12341f;border-radius:18px;padding:5px 9px;font-size:11px;font-weight:800}
+.attribute-table{border:1px solid #26302a;border-radius:11px;overflow:hidden;margin:14px 0}.attribute-row{display:grid;grid-template-columns:42% 58%;padding:10px 12px;border-bottom:1px solid #202922;font-size:12px}.attribute-row:last-child{border-bottom:0}.attribute-row span:first-child{color:#8f9a93}.attribute-row span:last-child{color:#dbe3de;font-weight:700}
+.metrics-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:9px;margin:15px 0}.metric-box{background:#0b0f0d;border:1px solid #26302a;border-radius:10px;padding:12px}.metric-box small{display:block;color:#8f9a93;font-size:11px}.metric-box strong{display:block;color:#70e993;font-size:21px;margin-top:4px}
+.calc-box{background:#0b0f0d;border:1px dashed #2f9b52;border-radius:11px;padding:13px;margin-top:12px}.calc-box h4{margin:0 0 8px;color:#70d993}.formula{font-family:Consolas,monospace;color:#dbe3de;font-size:11px;line-height:1.8}
+.chart-section{margin-top:15px}.chart-section h3{font-size:16px;margin:0 0 10px;color:#70d993}.chart-grid-models{display:grid;grid-template-columns:1fr 1fr;gap:10px}.model-chart{background:#0b0e0c;border:1px solid #26302a;border-radius:10px;padding:8px}.model-chart img{display:block;width:100%;height:250px;object-fit:contain}.chart-label{font-size:11px;color:#8f9a93;padding:3px 5px 5px}
+.info-box{border:1px solid #26302a;background:#101611;border-radius:10px;padding:11px;color:#aab4ae;font-size:12px;line-height:1.6;margin-top:12px}
+@media(max-width:1000px){.models-layout{grid-template-columns:1fr}.details-panel{position:static}.learning-toggle{grid-template-columns:1fr}.chart-grid-models{grid-template-columns:1fr}}
+</style>
+
+<div class="page-header">
+    <h2>Models</h2>
+    <p>Explore and calculate machine-learning models directly from the RENT RADAR dataset.</p>
+</div>
+
+{% if error %}<div class="error-box">{{ error }}</div>{% endif %}
+
+<div class="models-shell">
+    <div class="learning-toggle">
+        <button id="supervisedBtn" class="learning-btn active" type="button" onclick="showLearning('supervised')">🧠 Supervised Learning</button>
+        <button id="unsupervisedBtn" class="learning-btn" type="button" onclick="showLearning('unsupervised')">🔗 Unsupervised Learning</button>
+    </div>
+
+    <div class="models-layout">
+        <div class="model-browser">
+            <div id="supervisedPanel">
+                {% for group, models in model_groups.items() %}
+                <div class="model-group">
+                    <h3>{{ group }}</h3>
+                    <div class="model-buttons">
+                        {% for key, name in models %}
+                        <a class="model-btn {% if selected_model and selected_model.key == key %}selected{% endif %}" href="{{ url_for('model_detail', model_key=key) }}">
+                            <span>{{ name }}</span><span>›</span>
+                        </a>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <div id="unsupervisedPanel" style="display:none;">
+                {% for group, models in unsupervised_groups.items() %}
+                <div class="model-group">
+                    <h3>{{ group }}</h3>
+                    <div class="model-buttons">
+                        {% for key, name in models %}
+                        <a class="model-btn {% if selected_model and selected_model.key == key %}selected{% endif %}" href="{{ url_for('model_detail', model_key=key) }}">
+                            <span>{{ name }}</span><span>›</span>
+                        </a>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endfor %}
+                <div class="info-box">Unsupervised models do not require a labelled target. They calculate patterns from the numeric rental data in the dataset.</div>
+            </div>
+        </div>
+
+        <div class="details-panel">
+        {% if selected_model and results %}
+            {% set info = model_info[selected_model.key] %}
+            <div class="details-title">
+                <div><h2>{{ selected_model.name }}</h2><p class="note" style="margin-top:6px;">{{ info.description }}</p></div>
+                <span class="type-pill">{{ info.type }}</span>
+            </div>
+
+            <div class="attribute-table">
+                <div class="attribute-row"><span>Algorithm</span><span>{{ selected_model.name }}</span></div>
+                <div class="attribute-row"><span>Dataset</span><span>RENT RADAR active dataset</span></div>
+                <div class="attribute-row"><span>Rows used</span><span>{{ results.train_rows|default(results.rows_used)|default(0) }}</span></div>
+                {% if results.test_rows is defined %}<div class="attribute-row"><span>Testing rows</span><span>{{ results.test_rows }}</span></div>{% endif %}
+                {% for attr in info.attributes %}<div class="attribute-row"><span>Parameter</span><span>{{ attr }}</span></div>{% endfor %}
+            </div>
+
+            {% if results.kind == 'Regression' %}
+            <div class="metrics-grid">
+                <div class="metric-box"><small>MAE</small><strong>{{ "%.4f"|format(results.mae) }}</strong></div>
+                <div class="metric-box"><small>MSE</small><strong>{{ "%.4f"|format(results.mse) }}</strong></div>
+                <div class="metric-box"><small>RMSE</small><strong>{{ "%.4f"|format(results.rmse) }}</strong></div>
+                <div class="metric-box"><small>R²</small><strong>{{ "%.4f"|format(results.r2) }}</strong></div>
+            </div>
+            <div class="calc-box">
+                <h4>🧮 Calculations from dataset</h4>
+                <div class="formula">MAE = Σ|actual − predicted| / n = {{ "%.4f"|format(results.mae) }}</div>
+                <div class="formula">MSE = Σ(actual − predicted)² / n = {{ "%.4f"|format(results.mse) }}</div>
+                <div class="formula">RMSE = √MSE = {{ "%.4f"|format(results.rmse) }}</div>
+                <div class="formula">R² = 1 − SSE/SST = {{ "%.4f"|format(results.r2) }}</div>
+            </div>
+            {% elif results.kind == 'Classification' %}
+            <div class="metrics-grid">
+                <div class="metric-box"><small>Accuracy</small><strong>{{ "%.4f"|format(results.accuracy) }}</strong></div>
+                <div class="metric-box"><small>Precision</small><strong>{{ "%.4f"|format(results.precision) }}</strong></div>
+                <div class="metric-box"><small>Recall</small><strong>{{ "%.4f"|format(results.recall) }}</strong></div>
+                <div class="metric-box"><small>F1 Score</small><strong>{{ "%.4f"|format(results.f1) }}</strong></div>
+            </div>
+            <div class="calc-box">
+                <h4>🧮 Calculations from dataset</h4>
+                <div class="formula">Accuracy = correct predictions / total predictions = {{ "%.4f"|format(results.accuracy) }}</div>
+                <div class="formula">Precision = TP / (TP + FP) = {{ "%.4f"|format(results.precision) }}</div>
+                <div class="formula">Recall = TP / (TP + FN) = {{ "%.4f"|format(results.recall) }}</div>
+                <div class="formula">F1 = 2 × Precision × Recall / (Precision + Recall) = {{ "%.4f"|format(results.f1) }}</div>
+            </div>
+            {% elif results.kind == 'Clustering' %}
+            <div class="metrics-grid">
+                <div class="metric-box"><small>Clusters</small><strong>{{ results.cluster_count }}</strong></div>
+                <div class="metric-box"><small>Silhouette Score</small><strong>{% if results.silhouette is not none %}{{ "%.4f"|format(results.silhouette) }}{% else %}N/A{% endif %}</strong></div>
+                <div class="metric-box"><small>Davies-Bouldin</small><strong>{% if results.davies_bouldin is not none %}{{ "%.4f"|format(results.davies_bouldin) }}{% else %}N/A{% endif %}</strong></div>
+                <div class="metric-box"><small>Rows Calculated</small><strong>{{ results.rows_used }}</strong></div>
+            </div>
+            <div class="calc-box">
+                <h4>🧮 Calculations from dataset</h4>
+                <div class="formula">Silhouette = mean((b − a) / max(a,b)) = {% if results.silhouette is not none %}{{ "%.4f"|format(results.silhouette) }}{% else %}N/A{% endif %}</div>
+                <div class="formula">Davies-Bouldin index = {% if results.davies_bouldin is not none %}{{ "%.4f"|format(results.davies_bouldin) }}{% else %}N/A{% endif %}</div>
+                {% if results.inertia is defined %}<div class="formula">K-Means inertia = {{ "%.4f"|format(results.inertia) }}</div>{% endif %}
+                {% if results.noise_points is defined %}<div class="formula">DBSCAN noise points = {{ results.noise_points }}</div>{% endif %}
+            </div>
+            {% elif results.kind == 'PCA' %}
+            <div class="metrics-grid">
+                <div class="metric-box"><small>Components</small><strong>{{ results.params.n_components }}</strong></div>
+                <div class="metric-box"><small>Variance Explained</small><strong>{{ "%.2f"|format(results.explained_variance_total * 100) }}%</strong></div>
+                <div class="metric-box"><small>Rows Calculated</small><strong>{{ results.rows_used }}</strong></div>
+                <div class="metric-box"><small>Features</small><strong>{{ results.features|length }}</strong></div>
+            </div>
+            <div class="calc-box">
+                <h4>🧮 Calculations from dataset</h4>
+                {% for value in results.explained_variance %}<div class="formula">PC{{ loop.index }} variance = {{ "%.2f"|format(value * 100) }}%</div>{% endfor %}
+                <div class="formula">Total explained variance = {{ "%.2f"|format(results.explained_variance_total * 100) }}%</div>
+            </div>
+            {% endif %}
+
+            <div class="chart-section">
+                <h3>📈 Graph / Visualization</h3>
+                <div class="chart-grid-models">
+                    {% for chart in results.charts %}
+                    <div class="model-chart"><img src="{{ url_for('static', filename=chart) }}?v={{ selected_model.key }}" alt="{{ selected_model.name }} graph"><div class="chart-label">Calculated directly from the active dataset</div></div>
+                    {% endfor %}
+                </div>
+            </div>
+        {% else %}
+            <div style="padding:35px 10px;text-align:center;">
+                <div style="font-size:42px;margin-bottom:12px;">🎯</div>
+                <h2 style="margin-bottom:8px;">Select a Model</h2>
+                <p class="note">Choose any model button on the left. The right panel will show its attributes, calculated values, formulas and graph using the RENT RADAR dataset.</p>
+            </div>
+        {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+function showLearning(kind){
+    const supervised = document.getElementById('supervisedPanel');
+    const unsupervised = document.getElementById('unsupervisedPanel');
+    const sb = document.getElementById('supervisedBtn');
+    const ub = document.getElementById('unsupervisedBtn');
+    const isSupervised = kind === 'supervised';
+    supervised.style.display = isSupervised ? 'block' : 'none';
+    unsupervised.style.display = isSupervised ? 'none' : 'block';
+    sb.classList.toggle('active', isSupervised);
+    ub.classList.toggle('active', !isSupervised);
+}
+{% if selected_model and selected_model.key in ['kmeans','hierarchical','agglomerative','dbscan','pca'] %}
+showLearning('unsupervised');
+{% endif %}
+</script>
+{% endblock %}

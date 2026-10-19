@@ -1,0 +1,7 @@
+{% extends "base.html" %}{% block content %}
+<div class="page-header"><h2>Rent Data Import</h2><p>Upload a rental dataset or continue with the supplied Apartments for Rent Classified 100K dataset.</p></div>
+{% with messages = get_flashed_messages(with_categories=true) %}{% for category,message in messages %}<div class="success-box">{{ message }}</div>{% endfor %}{% endwith %}
+{% if error %}<div class="error-box">{{ error }}</div>{% endif %}
+<div class="upload-box"><h3>Upload Rental Data</h3><p>The supplied dataset uses semicolons as delimiters and is handled automatically.</p><form method="post" enctype="multipart/form-data"><input type="file" name="dataset" accept=".csv" required><button type="submit">Upload & Activate</button></form></div>
+{% if summary %}<div class="cards"><div class="card"><div class="card-label">LISTINGS</div><div class="card-value">{{ "{:,}".format(summary.n_rows) }}</div></div><div class="card"><div class="card-label">FIELDS</div><div class="card-value">{{ summary.n_cols }}</div></div><div class="card"><div class="card-label">MISSING</div><div class="card-value">{{ "{:,}".format(summary.total_missing) }}</div></div><div class="card"><div class="card-label">DUPLICATES</div><div class="card-value">{{ "{:,}".format(summary.duplicates) }}</div></div></div>{% endif %}
+{% endblock %}

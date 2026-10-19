@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/../Placement_Prediction_System/.idea/Placement_Prediction_System.iml" filepath="$PROJECT_DIR$/../Placement_Prediction_System/.idea/Placement_Prediction_System.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../Placement_Prediction_System_MODELS_FIXED/.idea/Placement_Prediction_System_MODELS_FIXED.iml" filepath="$PROJECT_DIR$/../Placement_Prediction_System_MODELS_FIXED/.idea/Placement_Prediction_System_MODELS_FIXED.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/RENT_RADAR_Models_Final_Black_Green.iml" filepath="$PROJECT_DIR$/.idea/RENT_RADAR_Models_Final_Black_Green.iml" />
+    </modules>
+  </component>
+</project>

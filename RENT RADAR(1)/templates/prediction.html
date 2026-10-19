@@ -1,0 +1,18 @@
+{% extends "base.html" %}{% block content %}
+<div class="page-header"><h2>Rent Price Predictor</h2><p>Enter apartment details and estimate the monthly rental price using the trained regression model.</p></div>
+{% if error %}<div class="error-box">{{ error }}</div>{% endif %}
+<div class="chart-card">
+<form method="post"><div class="form-grid">
+<div class="field"><label>Bedrooms</label><input type="number" step="1" name="bedrooms" value="{{ values.bedrooms }}" placeholder="2"></div>
+<div class="field"><label>Bathrooms</label><input type="number" step="0.5" name="bathrooms" value="{{ values.bathrooms }}" placeholder="2"></div>
+<div class="field"><label>Square Feet</label><input type="number" step="1" name="square_feet" value="{{ values.square_feet }}" placeholder="900"></div>
+<div class="field"><label>City</label><input name="cityname" value="{{ values.cityname }}" placeholder="Austin"></div>
+<div class="field"><label>State</label><input name="state" value="{{ values.state }}" placeholder="TX"></div>
+<div class="field"><label>Pets Allowed</label><input name="pets_allowed" value="{{ values.pets_allowed }}" placeholder="Cats,Dogs"></div>
+<div class="field"><label>Fee</label><select name="fee"><option value="">Select</option><option {% if values.fee=='No' %}selected{% endif %}>No</option><option {% if values.fee=='Yes' %}selected{% endif %}>Yes</option></select></div>
+<div class="field"><label>Photo Available</label><select name="has_photo"><option value="">Select</option><option {% if values.has_photo=='Thumbnail' %}selected{% endif %}>Thumbnail</option><option {% if values.has_photo=='Yes' %}selected{% endif %}>Yes</option><option {% if values.has_photo=='No' %}selected{% endif %}>No</option></select></div>
+<div class="field"><label>Price Type</label><select name="price_type"><option value="">Select</option><option {% if values.price_type=='Monthly' %}selected{% endif %}>Monthly</option></select></div>
+</div><div class="form-actions"><button type="submit">💸 Estimate Rent</button></div></form>
+{% if prediction is not none %}<div class="prediction-result"><div>Estimated Monthly Rent</div><div class="amount">${{ "{:,.0f}".format(prediction) }}</div><div class="note">Model estimate based on the trained rental dataset.</div></div>{% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Rent Radar</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<header class="topbar">
+    <div class="brand">
+        <div class="brand-icon">$</div>
+        <div>
+            <div class="brand-name">RENT RADAR</div>
+            <div class="brand-tagline">Smart Insights. Smarter Rentals.</div>
+        </div>
+    </div>
+</header>
+
+<aside class="sidebar">
+    <div class="sidebar-title">RENT RADAR</div>
+
+    <a class="menu-item {% if active=='dashboard' %}active{% endif %}" href="{{ url_for('index') }}">
+        <span class="menu-icon">🏠</span>
+        <span><strong>Dashboard Overview</strong><small>Market at a Glance</small></span>
+    </a>
+
+    <a class="menu-item {% if active=='data-loading' %}active{% endif %}" href="{{ url_for('data_loading') }}">
+        <span class="menu-icon">☁️</span>
+        <span><strong>Rent Data Import</strong><small>Upload Your Data</small></span>
+    </a>
+
+    <a class="menu-item {% if active=='eda' %}active{% endif %}" href="{{ url_for('eda_page') }}">
+        <span class="menu-icon">📊</span>
+        <span><strong>Rent Insights</strong><small>EDA &amp; Analysis</small></span>
+    </a>
+
+    <a class="menu-item {% if active=='preprocessing' %}active{% endif %}" href="{{ url_for('preprocessing_page') }}">
+        <span class="menu-icon">🗄️</span>
+        <span><strong>Data Preparation</strong><small>Clean &amp; Prepare Data</small></span>
+    </a>
+
+    <a class="menu-item {% if active=='eda' %}active{% endif %}" href="{{ url_for('eda_page') }}#trends">
+        <span class="menu-icon">📈💵</span>
+        <span><strong>Rent Trends</strong><small>Explore Market Trends</small></span>
+    </a>
+
+    <a class="menu-item {% if active=='visualization' %}active{% endif %}" href="{{ url_for('visualization_page') }}">
+        <span class="menu-icon">🥧</span>
+        <span><strong>Market Visuals</strong><small>Charts &amp; Graphs</small></span>
+    </a>
+
+    <details {% if active=='models' %}open{% endif %} style="margin-bottom:7px;">
+        <summary class="menu-item {% if active=='models' %}active{% endif %}" style="cursor:pointer;list-style:none;">
+            <span class="menu-icon">🎯</span>
+            <span><strong>Models</strong><small>Regression &amp; Classification</small></span>
+        </summary>
+        <div style="margin:5px 8px 10px 66px;display:flex;flex-direction:column;gap:5px;">
+            <div style="color:#6ce994;font-size:12px;font-weight:800;padding:7px 5px;">REGRESSION</div>
+            <a href="{{ url_for('model_detail', model_key='linear-regression') }}" style="color:#c3ccc6;text-decoration:none;padding:7px 5px;font-size:13px;">Linear Regression</a>
+            <a href="{{ url_for('model_detail', model_key='ridge-regression') }}" style="color:#c3ccc6;text-decoration:none;padding:7px 5px;font-size:13px;">Ridge Regression</a>
+            <a href="{{ url_for('model_detail', model_key='lasso-regression') }}" style="color:#c3ccc6;text-decoration:none;padding:7px 5px;font-size:13px;">Lasso Regression</a>
+            <a href="{{ url_for('model_detail', model_key='decision-tree-regression') }}" style="color:#c3ccc6;text-decoration:none;padding:7px 5px;font-size:13px;">Decision Tree Regression</a>
+            <div style="color:#6ce994;font-size:12px;font-weight:800;padding:10px 5px 7px;">CLASSIFICATION</div>
+            <a href="{{ url_for('model_detail', model_key='logistic-regression') }}" style="color:#c3ccc6;text-decoration:none;padding:7px 5px;font-size:13px;">Logistic Regression</a>
+            <a href="{{ url_for('model_detail', model_key='decision-tree-id3') }}" style="color:#c3ccc6;text-decoration:none;padding:7px 5px;font-size:13px;">Decision Tree — ID3</a>
+            <a href="{{ url_for('model_detail', model_key='decision-tree-c45') }}" style="color:#c3ccc6;text-decoration:none;padding:7px 5px;font-size:13px;">Decision Tree — C4.5</a>
+            <a href="{{ url_for('model_detail', model_key='decision-tree-cart') }}" style="color:#c3ccc6;text-decoration:none;padding:7px 5px;font-size:13px;">Decision Tree — CART</a>
+        </div>
+    </details>
+
+    <a class="menu-item predictor-link {% if active=='prediction' %}active{% endif %}" href="{{ url_for('prediction_page') }}">
+        <span class="menu-icon">💸</span>
+        <span><strong>Rent Price Predictor</strong><small>Predict Rent Price</small></span>
+    </a>
+</aside>
+
+<main class="main-content">
+{% block content %}{% endblock %}
+</main>
+</body>
+</html>

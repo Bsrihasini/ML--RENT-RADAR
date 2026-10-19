@@ -1,0 +1,13 @@
+{% extends "base.html" %}{% block content %}
+<div class="page-header"><h2>Rent Prediction Model</h2><p>Linear regression analysis for estimating monthly apartment rent from property and location features.</p></div>
+{% if error %}<div class="error-box">{{ error }}</div>{% endif %}
+{% if results %}
+<div class="cards">
+<div class="card"><div class="card-label">R² SCORE</div><div class="card-value">{{ "%.3f"|format(results.r2_score) }}</div></div>
+<div class="card"><div class="card-label">MAE</div><div class="card-value">${{ "{:,.0f}".format(results.mae) }}</div></div>
+<div class="card"><div class="card-label">RMSE</div><div class="card-value">${{ "{:,.0f}".format(results.rmse) }}</div></div>
+<div class="card"><div class="card-label">MSE</div><div class="card-value">{{ "{:,.0f}".format(results.mse) }}</div></div>
+</div>
+<div class="chart-grid"><div class="chart-card"><h3>Actual vs Predicted Rent</h3><div class="chart-container"><img src="{{ url_for('static', filename='charts/actual_vs_predicted.png') }}"></div></div><div class="chart-card"><h3>Residual Distribution</h3><div class="chart-container"><img src="{{ url_for('static', filename='charts/residual_distribution.png') }}"></div></div></div>
+{% endif %}
+{% endblock %}
